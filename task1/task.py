@@ -1,27 +1,26 @@
 import csv
 
-def parse_data(row_data, element_number):
-    row = row_data.split(",")
-    if len(row) > element_number:
-        error_catch = True
-        return "InputError: column number is bigger than number of columns"
+def parse_data(csv_data, row_number, element_number) -> bool:
+    if len(csv_data) >= row_number:
+        print("Row doesn't exist")
+        return False
+    elif len(csv_data[row_number]) >= element_number:
+        print("Element doesn't exist")
+        return False
     else:
-        return row[element_number]
+        print(*csv_data[row_number][element_number])
+        return True
 
 if __name__ == "__main__":
     input_data = input("Путь до файла, номера строки и столбца: ")
     file_path, row_number, column_number = input_data.split(",")
 
-    error_catch = False
-
     row_number -= 1
     column_number -= 1
 
     with open(file_path, "r") as file:
-        csv_reader = csv.reader(file, delimiter=",")
-        current_row = 0
+        data_array = []
         for row in file:
-            if current_row == row_number:
-                print(parse_data(row, column_number))
-                break
-            current_row += 1
+            data_array.append(row.split(","))
+            data_array[-1].pop(-1)
+        parse_data(data_array, row_number, column_number)
