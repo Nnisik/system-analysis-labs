@@ -1,19 +1,25 @@
 import csv
 
 def parse_data(csv_data, row_number, element_number) -> bool:
+    if row_number < 0 or element_number < 0:
+        print("Negative index")
+        return
+    
     if len(csv_data) >= row_number:
         print("Row doesn't exist")
-        return False
-    elif len(csv_data[row_number]) >= element_number:
+        return
+    
+    if len(csv_data[row_number]) >= element_number:
         print("Element doesn't exist")
-        return False
+        return
+    
     else:
         print(*csv_data[row_number][element_number])
-        return True
+        return
 
 if __name__ == "__main__":
-    input_data = input("Путь до файла, номера строки и столбца: ")
-    file_path, row_number, column_number = input_data.split(",")
+    file_path = "./example.csv"
+    row_number, column_number = int(input().split(","))
 
     row_number -= 1
     column_number -= 1
