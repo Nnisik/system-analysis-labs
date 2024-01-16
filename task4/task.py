@@ -3,7 +3,7 @@ import numpy
 def fill_elems_matrix(matrix, matrix_size):
     for index_1 in range(1, matrix_size + 1):
         for index_2 in range(1, matrix_size + 1):
-            matrix[sum(index_1, index_2)][index_1 * index_2] += 1
+            matrix[index_1 + index_2][index_1 * index_2] += 1  # изменено sum(index_1, index_2) на index_1 + index_2
     return matrix
 
 def calculate_Ha(p):
@@ -36,6 +36,6 @@ def task():
 
     return [Hab, Ha, Hb, HaB, Hb - HaB]
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     # example_data = [4.34, 3.27, 4.04, 1.06, 2.98]
     print(task())
