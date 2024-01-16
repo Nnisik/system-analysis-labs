@@ -3,9 +3,9 @@ import math
 
 def calculate_entropy(n: int, k: int, l):
     H = 0
-    for i in range(1, n):
-        for k in range(1, k):
-            H += (l/(n - 1)) * math.log10(l/(n - 1))
+    for i in range(1, n+1):
+        for j in range(1, k+1):
+            H += (l/(n - k)) * math.log10(l/(n * k))
     return H * (-1)
 
 def task(csv_path: str) -> None:
@@ -19,11 +19,11 @@ def task(csv_path: str) -> None:
     
     for row in data:
         for elem in row:
-            entropy += calculate_entropy(elem, len_data)
+            entropy += calculate_entropy(len(row), len_data, elem) 
     
     return entropy
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     file_path = "./task3.csv"
     print(task(file_path))
