@@ -1,41 +1,103 @@
-import numpy
+import math
 
-def fill_elems_matrix(matrix, matrix_size):
-    for index_1 in range(1, matrix_size + 1):
-        for index_2 in range(1, matrix_size + 1):
-            matrix[index_1 + index_2][index_1 * index_2] += 1  # изменено sum(index_1, index_2) на index_1 + index_2
+def get_values_matrix():
+    values_sum = []
+    values_prod = []
+
+    for i in range(1, 7):
+        for j in range(1, 7):
+            sum_ij = i + j
+            prod_ij = i * j
+            values_sum.append(sum_ij)
+            values_prod.append(prod_ij)
+    
+    values_sum = list(set(values_sum))
+    values_prod = list(set(values_prod))
+
+    matrix = [[0 for _ in range(len(values_prod))] for _ in range(len(values_sum))]
+
+    for i in range(1, 7):
+        for j in range(1, 7):
+            sum_ij = i + j
+            prod_ij = i * j
+            matrix[values_sum.index(sum_ij)][values_prod.index(prod_ij)] += 1
     return matrix
 
-def calculate_Ha(p):
-    h = [[0 if pij == 0 else -pij * numpy.log2(pij) for pij in row] for row in p]
-    return sum(map(sum, h))
+def get_prob_matrix(matrix):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            matrix[i][j] /= 36
+    return matrix
 
-def calculate_Hb(matrix, n):
-    matrix = numpy.transpose(matrix)
-    p = [[x / (n * n) for x in row] for row in matrix]
-    h = [0 if sum(row) == 0 else -sum(row) * numpy.log2(sum(row)) for row in p]
-    return sum(h)
+def compute_single_entropy(matrix, by='row'):
+    entropy = 0.0
+    
+    if by == 'row':
+        for i in range(len(matrix)):
+            h = 0.0
+            for value in matrix[i]:
+                if value != 0.0:
+                    h += value
+
+            h = -1 * h * math.log2(h)
+            entropy += h
+    
+    elif by == 'column':
+        for i in range(len(matrix[0])):
+            h = 0.0
+            for j in range(len(matrix)):
+                if matrix[j][i] != 0.0:
+                    h += matrix[j][i]
+            
+            h = -1 * h * math.log2(h)
+            entropy += h
+    
+    return entropy
+
+def compute_joint_entropy(matrix):
+    entropy = 0.0
+    for i in range(len(matrix)):
+        h = 0.0
+        for j in range(len(matrix[i])):
+            if matrix[i][j] != 0.0:
+                h += -1 * matrix[i][j] * math.log2(matrix[i][j])
+        entropy += h
+
+    return entropy
+
+def compute_conditional_entropy(matrix, prob_matrix):
+    prob_matrix_cond = [[0 for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
+    
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            prob_matrix_cond[i][j] = matrix[i][j] / sum(matrix[i])
+
+    entropy = 0.0
+    for i in range(len(prob_matrix_cond)):
+        h_si = 0.0
+        for j in range(len(prob_matrix_cond[i])):
+            if prob_matrix_cond[i][j] != 0.0:
+                h_si += -1 * prob_matrix_cond[i][j] * math.log2(prob_matrix_cond[i][j])
+        h = h_si * sum(prob_matrix[i])
+        entropy += h
+
+    return entropy
 
 def task():
-    n = 6
-    elems_matrix = [[0 for x in range(n**2 + 1)] for y in range(2 * n + 1)]
-    elems_matrix = fill_elems_matrix(elems_matrix, n)
+    matrix = get_values_matrix()
 
-    p = [[x / n**2 for x in row] for row in elems_matrix]
-    Hab = calculate_Ha(p)
+    prob_matrix = get_prob_matrix(matrix)
+    
+    entropy_A = compute_single_entropy(prob_matrix, by='row')
+    entropy_B = compute_single_entropy(prob_matrix, by='column')
 
-    p2 = [[0 if sum(row) == 0 else mij / sum(row) for mij in row] for row in elems_matrix]
-    h2 = [[0 if pij == 0 else -pij * numpy.log2(pij) for pij in row] for row in p2]
+    entropy_AB = compute_joint_entropy(prob_matrix)
 
-    HaB = 0.0
-    for i in range(len(p2)):
-        HaB += sum(h2[i]) * sum(p[i])
+    entropy_B_A = compute_conditional_entropy(matrix, prob_matrix)
 
-    Ha = Hab - HaB
-    Hb = calculate_Hb(elems_matrix, n)
+    information_A_B = entropy_B - entropy_B_A
 
-    return [Hab, Ha, Hb, HaB, Hb - HaB]
+    return entropy_A, entropy_B, entropy_AB, entropy_B_A, information_A_B
 
-if __name__ == "__main__": 
-    # example_data = [4.34, 3.27, 4.04, 1.06, 2.98]
-    print(task())
+if __name__ == '__main__':
+    task()
